@@ -78,7 +78,7 @@ pipeline {
                     }
 
                     // Corrected single-line command
-                    sh "docker run -d -p 8080:8080 --name kaddem-container --restart=always ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker run -d -p 8088:8080 --name kaddem-container --restart=always ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
