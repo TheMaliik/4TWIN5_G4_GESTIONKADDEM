@@ -22,7 +22,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 // Run unit tests specifically for EtudiantRestController
-                sh 'mvn test -Dtest=EtudiantRestControllerTest'
+                sh 'mvn test -Dtest=EtudiantServiceImplTest'
             }
         }
 
