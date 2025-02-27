@@ -59,9 +59,7 @@ pipeline {
         stage('Upload to Nexus') {
             steps {
                 // Deploy the JAR to the Nexus repository
-                sh '''
-                mvn deploy -DaltDeploymentRepository=nexus::default::${NEXUS_URL}
-                '''
+                sh 'mvn clean deploy'
             }
         }
 
