@@ -67,11 +67,7 @@ pipeline {
         stage('Download JAR from Nexus') {
             steps {
                 // Download the JAR from Nexus to ensure the latest version is used for Docker
-                sh '''
-                wget --http-user=admin --http-password=nexus \
-                -O target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} \
-                ${NEXUS_URL}/${GROUP_ID.replace('.', '/')}/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING}
-                '''
+                sh 'wget --http-user=admin --http-password=nexus -O target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} ${NEXUS_URL}/$(echo ${GROUP_ID} | sed "s/\\./\\//g")/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING}'
             }
         }
 
