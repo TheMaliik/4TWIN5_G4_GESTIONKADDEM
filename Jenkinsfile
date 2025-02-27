@@ -60,7 +60,9 @@ pipeline {
             steps {
                 // Deploy the JAR to the Nexus repository
                 //sh 'mvn clean deploy'
-                sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:nexus@localhost:8081/repository/maven-releases/'
+                //sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:nexus@localhost:8081/repository/maven-releases/'
+                sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:nexus@localhost:8081/repository/maven-snapshots/'
+
             }
         }
 
