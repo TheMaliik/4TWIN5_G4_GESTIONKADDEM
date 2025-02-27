@@ -12,7 +12,7 @@ pipeline {
         NEXUS_URL = "http://localhost:8081/repository/maven-releases"
         GROUP_ID = "tn.esprit.spring"
         ARTIFACT_ID = "kaddem"
-        VERSION = "0.0.1-SNAPSHOT"
+        VERSION = "0.0.1"
         PACKAGING = "jar"
     }
 
