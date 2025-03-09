@@ -25,8 +25,22 @@ pipeline {
             }
         }
 
-       
+        stage('Deploy to Nexus') {
+            steps {
+                script {
+                    def startTime = System.currentTimeMillis()
+                    try {
+                        sh '''
+                        echo "Déploiement vers Nexus (tests ignorés)..."
+                        mvn deploy -DskipTests
+                        '''
+                    } finally {
+                        def endTime = System.currentTimeMillis()
+                        def duration = (endTime - startTime) / 1000
+                        echo "Durée de l'étape Deploy to Nexus : ${duration}s"
+                    }
+                }
+            }
+        }
     }
-
-    
 }
