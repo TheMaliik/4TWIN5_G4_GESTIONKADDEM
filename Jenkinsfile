@@ -69,7 +69,7 @@ pipeline {
         stage('Download JAR from Nexus') {
             steps {
                 // Download the JAR from Nexus to ensure the latest version is used for Docker
-                sh 'ls -lah target/'  # List files in the target directory
+                sh 'ls -lah target/'  // List files in the target directory
                 sh 'wget --http-user=admin --http-password=nexus -O target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} ${NEXUS_URL}/$(echo ${GROUP_ID} | sed "s/\\./\\//g")/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING}'
             }
         }
@@ -79,7 +79,7 @@ pipeline {
                 // Build the Docker image using the downloaded JAR
                 //sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 sh '''
-                sh 'ls -lah target/'  # List files in the target directory
+                sh 'ls -lah target/'  // List files in the target directory
                 mv target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} kaddem.jar
                 docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                 '''
