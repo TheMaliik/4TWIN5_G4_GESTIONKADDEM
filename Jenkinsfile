@@ -95,7 +95,7 @@ pipeline {
                 // Build the Docker image using the downloaded JAR
                 //sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 sh '''
-                mv target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} kaddem.jar
+                //mv target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} kaddem.jar
                 docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                 '''
             }

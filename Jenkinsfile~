@@ -69,32 +69,32 @@ pipeline {
         stage('Download JAR from Nexus') {
             steps {
                 // Ensure the target directory exists before download
-                sh 'mkdir -p target'
+             //   sh 'mkdir -p target'
 
                 // Download the JAR from Nexus to ensure the latest version is used for Docker
                 sh 'wget --http-user=admin --http-password=nexus -O target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} ${NEXUS_URL}/$(echo ${GROUP_ID} | sed "s/\\./\\//g")/${ARTIFACT_ID}/${VERSION}/${ARTIFACT_ID}-${VERSION}.${PACKAGING}'
 
                 // Print working directory and contents of target
-                sh 'pwd'               // Print current directory
-                sh 'ls -lah'           // List the contents of the current directory
-                sh 'ls -lah target/'    // List the contents of the target directory
-                sh 'chmod -R 755 target/'  // Ensure correct permissions for the target directory and files
+           //     sh 'pwd'               // Print current directory
+           //     sh 'ls -lah'           // List the contents of the current directory
+           //    sh 'ls -lah target/'    // List the contents of the target directory
+           //     sh 'chmod -R 755 target/'  // Ensure correct permissions for the target directory and files
             }
         }
 
         stage('Docker Build') {
             steps {
                 // Verify JAR exists before building Docker image
-                sh 'if [ -f "target/kaddem-0.0.1.jar" ]; then mv target/kaddem-0.0.1.jar kaddem.jar; else echo "JAR file not found"; exit 1; fi'
+                //sh 'if [ -f "target/kaddem-0.0.1.jar" ]; then mv target/kaddem-0.0.1.jar kaddem.jar; else echo "JAR file not found"; exit 1; fi'
 
                 // List current directory to ensure the JAR is renamed
-                sh 'ls -lah'
+                //sh 'ls -lah'
 
+                sh 'ls -lah target/'  // List files in the target directory
 
                 // Build the Docker image using the downloaded JAR
                 //sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
                 sh '''
-                sh 'ls -lah target/'  // List files in the target directory
                 mv target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} kaddem.jar
                 docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                 '''
