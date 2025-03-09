@@ -85,17 +85,16 @@ pipeline {
         stage('Docker Build') {
             steps {
                 // Verify JAR exists before building Docker image
-                //sh 'if [ -f "target/kaddem-0.0.1.jar" ]; then mv target/kaddem-0.0.1.jar kaddem.jar; else echo "JAR file not found"; exit 1; fi'
+                sh 'if [ -f "target/kaddem-0.0.1.jar" ]; then mv target/kaddem-0.0.1.jar kaddem.jar; else echo "JAR file not found"; exit 1; fi'
 
                 // List current directory to ensure the JAR is renamed
-                //sh 'ls -lah'
-
                 sh 'ls -lah target/'  // List files in the target directory
 
-                // Build the Docker image using the downloaded JAR
+                // Build the Docker image using the local JAR
                 //sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
+
+                // Build the Docker image using the downloaded JAR
                 sh '''
-                //mv target/${ARTIFACT_ID}-${VERSION}.${PACKAGING} kaddem.jar
                 docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                 '''
             }
