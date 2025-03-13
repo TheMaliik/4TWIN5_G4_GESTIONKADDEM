@@ -5,7 +5,7 @@ services:
     image: mysql:5.7
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=mysecretpassword  # Set a root password here
+      - MYSQL_ROOT_PASSWORD=root # mysecretpassword  # Set a root password here
       - MYSQL_DATABASE=kaddem
     ports:
       - "3306:3306"
