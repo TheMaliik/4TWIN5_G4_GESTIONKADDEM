@@ -118,6 +118,15 @@ pipeline {
             }
         }
 
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    sh 'docker-compose down || true'  // Ensure cleanup before running
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
@@ -130,7 +139,7 @@ pipeline {
                     }
 
                     // Run the new container using the latest Docker image
-                    sh "docker run -d -p 8088:8080 --name kaddem-container --restart=always ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker run -d -p 8088:8089 --name kaddem-container --restart=always ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
