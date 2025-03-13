@@ -1,10 +1,6 @@
 pipeline {
     agent any
     
-  environment {
-        DOCKER_IMAGE = "guesmimelek/kaddem-app"
-        DOCKER_TAG = "latest"
-    }
     stages {
         stage('Build') {
             steps {
@@ -29,43 +25,47 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .'
-            }
-        }
-
-        stage('Docker Login') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'DockerHub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    '''
-                }
-            }
-        }
-
-        stage('Docker Push') {
-            steps {
-                sh 'docker push ${DOCKER_IMAGE}:${DOCKER_TAG}'
-            }
-        }
-
-        stage('Deploy') {
+        stage('Deploy to Nexus') {
             steps {
                 script {
-                    def containerExists = sh(script: "docker ps -q -f name=kaddem-container", returnStdout: true).trim()
-
-                    if (containerExists) {
-                        sh 'docker stop kaddem-container && docker rm kaddem-container'
+                    def startTime = System.currentTimeMillis()
+                    try {
+                        sh '''
+                        echo "Déploiement vers Nexus (tests ignorés)..."
+                        mvn deploy -DskipTests
+                        '''
+                    } finally {
+                        def endTime = System.currentTimeMillis()
+                        def duration = (endTime - startTime) / 1000
+                        echo "Durée de l'étape Deploy to Nexus : ${duration}s"
                     }
-
-                    // Corrected single-line command
-                    sh "docker run -d -p 8088:8080 --name kaddem-container --restart=always ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 }
             }
         }
-    }
 
-    
+
+         stage('Docker Build') {
+            steps {
+                script {
+                    echo '🐳 Building Docker Image...'
+                    sh 'docker build -t guesmimelek/kaddem:0.0.1 .'
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                script {
+                    echo '🚀 Pushing Docker Image to DockerHub...'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PAT')]) {
+                        sh '''
+                            echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push guesmimelek/kaddem:0.0.1
+                        '''
+                    }
+                }
+            }
+        }
+
+    }
 }
