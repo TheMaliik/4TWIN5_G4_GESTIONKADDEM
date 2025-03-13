@@ -42,5 +42,30 @@ pipeline {
                 }
             }
         }
+
+
+         stage('Docker Build') {
+            steps {
+                script {
+                    echo '🐳 Building Docker Image...'
+                    sh 'docker build -t guesmimelek/kaddem:0.0.1.'
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                script {
+                    echo '🚀 Pushing Docker Image to DockerHub...'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PAT')]) {
+                        sh '''
+                            echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push guesmimelek/kaddem:0.0.1
+                        '''
+                    }
+                }
+            }
+        }
+        
     }
 }
