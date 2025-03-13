@@ -66,7 +66,7 @@ pipeline {
             steps {
                 script {
                     echo '🚀 Deploying with Docker Compose...'
-                    sh 'docker-compose up -d'
+                    sh 'sudo docker compose up -d'
                 }
             }
         }  
