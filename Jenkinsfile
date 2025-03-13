@@ -43,7 +43,8 @@ pipeline {
             steps {
                 script {
                     echo '🐳 Building Docker Image...'
-                    sh 'docker build -t ghaithoueslati/kaddem:0.0.1.'
+                   sh 'docker build -t ghaithoueslati/kaddem:0.0.1 .'
+
                 }
             }
         }
