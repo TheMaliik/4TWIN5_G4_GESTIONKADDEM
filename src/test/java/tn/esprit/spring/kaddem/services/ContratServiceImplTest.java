@@ -3,6 +3,7 @@ package tn.esprit.spring.kaddem.services;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.spring.kaddem.entities.Contrat;
 import tn.esprit.spring.kaddem.entities.Etudiant;
@@ -18,6 +19,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
+@TestPropertySource(properties = {
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.datasource.driver-class-name=org.h2.Driver",
+    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1",
+    "spring.datasource.username=sa",
+    "spring.datasource.password=",
+    "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect"
+})
 public class ContratServiceImplTest {
 
     @Autowired
@@ -158,4 +167,4 @@ public class ContratServiceImplTest {
         // Verify loyalty bonus was applied (20% increase)
         assertEquals(1440, renewedContract.getMontantContrat()); // 1200 * 1.2
     }
-} 
+}
