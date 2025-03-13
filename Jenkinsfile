@@ -32,7 +32,7 @@ pipeline {
                               // sh 'mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS'
                                 
                                 
-                                sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:Nexus@1234@localhost:8081/repository/maven-releases/'
+                                sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:Ghaith1234@localhost:8081/repository/maven-releases/'
                         
                         }
 
