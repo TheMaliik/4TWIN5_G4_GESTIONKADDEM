@@ -24,17 +24,43 @@ pipeline {
             }
         }
 
-     stage('Deploy to Nexus') {
-                         steps {
-                             script {
-                                 echo '📦 Déploiement sur Nexus...'
-                                 withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                                       sh 'mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS'
+ stage('Deploy to Nexus') {
+                   steps {
+                        script {
+                          echo '📦 Déploiement sur Nexus...'
+                        withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                              // sh 'mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS'
+                                
+                                
+                                sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:Nexus@1234@localhost:8081/repository/maven-releases/'
+                        
+                        }
 
-                                 }
-                             }
-                         }
-                     }
+                           }
+                      }
+                  }
+          stage('Docker Build') {
+            steps {
+                script {
+                    echo '🐳 Building Docker Image...'
+                    sh 'docker build -t ghaithoueslati/kaddem:0.0.1.'
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                script {
+                    echo '🚀 Pushing Docker Image to DockerHub...'
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PAT')]) {
+                        sh '''
+                            echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
+                            docker push ghaithoueslati/kaddem:0.0.1
+                        '''
+                    }
+                }
+            }
+        }
 
     }
    
