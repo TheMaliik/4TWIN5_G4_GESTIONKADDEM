@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                     echo '🐳 Building Docker Image...'
-                    sh 'docker build -t ghaithoueslati/kaddem:0.0.1 .'
+                    sh 'docker build -t ghaith339/kaddem:0.0.1 .'
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
                         sh '''
                             docker logout
                             echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
-                            docker push ghaithoueslati/kaddem:0.0.1
+                            docker push ghaith339/kaddem:0.0.1
                         '''
                     }
                 }
