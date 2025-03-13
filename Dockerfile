@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk-rima
+FROM openjdk:11-jdk
 WORKDIR /app
 EXPOSE 8089
 ADD  target/kaddem-0.0.1.jar kaddem-0.0.1.jar
