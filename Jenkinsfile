@@ -4,11 +4,12 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+              
                 sh 'mvn clean compile'
             }
         }
 
-        stage('Tests') {
+        stage(' Tests') {
             steps {
                 sh 'mvn test'
             }
@@ -17,38 +18,43 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
+                   
                     sh 'mvn sonar:sonar'
                 }
             }
         }
 
-        stage('Deploy to Nexus') {
-            steps {
-                script {
-                    echo '📦 Deploying to Nexus...'
-                    withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
-                        sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://$NEXUS_USER:$NEXUS_PASS@localhost:8081/repository/maven-releases/'
-                    }
-                }
-            }
-        }
+ stage('Deploy to Nexus') {
+                   steps {
+                        script {
+                          echo '📦 Déploiement sur Nexus...'
+                        withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                              // sh 'mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS'
+                                
+                                
+                                sh 'mvn deploy -DaltDeploymentRepository=nexus::default::http://admin:Ghaith1234@localhost:8081/repository/maven-releases/'
+                        
+                        }
 
-        stage('Docker Build') {
+                           }
+                      }
+                  }
+          stage('Docker Build') {
             steps {
                 script {
                     echo '🐳 Building Docker Image...'
-                    sh 'docker build -t ghaith339/kaddem:0.0.1 .'
+                   sh 'docker build -t ghaith339/kaddem:0.0.1 .'
+
                 }
             }
         }
 
-        stage('Push to DockerHub') {
+ stage('Push to DockerHub') {
             steps {
                 script {
                     echo '🚀 Pushing Docker Image to DockerHub...'
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PAT')]) {
                         sh '''
-                            docker logout
                             echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
                             docker push ghaith339/kaddem:0.0.1
                         '''
@@ -56,5 +62,7 @@ pipeline {
                 }
             }
         }
+
     }
+   
 }
