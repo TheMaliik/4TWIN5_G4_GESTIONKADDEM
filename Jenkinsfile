@@ -24,7 +24,29 @@ pipeline {
             }
         }
 
-     
+     stage('Deploy to Nexus') {
+                         steps {
+                             script {
+                                 echo '📦 Déploiement sur Nexus...'
+                                 withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                                       sh 'mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS'
+
+                                 }
+                             }
+                         }
+                     }
+           stage('Deploy to Nexus') {
+                               steps {
+                                   script {
+                                       echo '📦 Déploiement sur Nexus...'
+                                       withCredentials([usernamePassword(credentialsId: 'nexus', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                                             sh 'mvn deploy -Dusername=$NEXUS_USER -Dpassword=$NEXUS_PASS'
+
+                                       }
+                                   }
+                               }
+                           }
+
     }
    
 }
