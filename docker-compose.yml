@@ -4,7 +4,7 @@ services:
   restart: unless-stopped
   environment:
   - MYSQL_DATABASE=kaddemdb
-  - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  - MYSQL_ALLOW_EMPTY_PASSWORD= 'yes'
   ports:
   - 3306:3306
   volumes:
@@ -12,7 +12,7 @@ services:
  kaddem-app:
   depends_on:
   - mysqldb
-  image: guesmimelek/kaddem-app:1.0.0
+  image: guesmimelek/kaddem-app:0.0.1
   restart: on-failure
   ports:
   - "8089:8089"
