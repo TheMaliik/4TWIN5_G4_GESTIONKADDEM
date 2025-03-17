@@ -70,7 +70,6 @@ pipeline {
         stage("Deploy with Docker Compose") {
             steps {
                 sh '''
-                    cd docker
                     docker compose down
                     docker compose pull
                     docker compose up -d
