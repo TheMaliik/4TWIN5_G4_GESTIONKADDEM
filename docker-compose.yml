@@ -16,7 +16,7 @@ services:
       - events-network
 
   spring-boot-app:
-    image: guesmimelek/kaddem-app:0.0.2
+    image: guesmimelek/kaddem-app:0.0.1
     container_name: DEVOPS
     restart: on-failure
     environment:
