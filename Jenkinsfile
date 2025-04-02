@@ -82,14 +82,14 @@ pipeline {
             emailext(
                 subject: "Pipeline Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "Good news! The pipeline completed successfully.",
-                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'DevelopersRecipientProvider']]
+                to: 'guesmimelek928@gmail.com' // Your email address
             )
         }
         failure {
             emailext(
                 subject: "Pipeline Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: "Unfortunately, the pipeline has failed. Please check the console output for more details.",
-                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'DevelopersRecipientProvider']]
+                to: 'guesmimelek928@gmail.com' // Your email address
             )
         }
     }
