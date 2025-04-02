@@ -15,7 +15,7 @@ import java.util.Set;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/universite")
-@CrossOrigin(origins = "*") // For testing
+@CrossOrigin("*")
 public class UniversiteRestController {
 
     private static final Logger logger = LogManager.getLogger(UniversiteRestController.class);
