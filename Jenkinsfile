@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Build') {
             steps {
@@ -43,8 +43,7 @@ pipeline {
             }
         }
 
-
-         stage('Docker Build') {
+        stage('Docker Build') {
             steps {
                 script {
                     echo '🐳 Building Docker Image...'
@@ -74,9 +73,24 @@ pipeline {
                     docker compose pull
                     docker compose up -d
                 '''
-                    
             }
         }
+    }
 
+    post {
+        success {
+            emailext(
+                subject: "Pipeline Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Good news! The pipeline completed successfully.",
+                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'DevelopersRecipientProvider']]
+            )
+        }
+        failure {
+            emailext(
+                subject: "Pipeline Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: "Unfortunately, the pipeline has failed. Please check the console output for more details.",
+                recipientProviders: [[$class: 'CulpritsRecipientProvider'], [$class: 'DevelopersRecipientProvider']]
+            )
+        }
     }
 }
