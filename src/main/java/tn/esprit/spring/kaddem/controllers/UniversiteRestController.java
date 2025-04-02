@@ -23,7 +23,7 @@ public class UniversiteRestController {
     @Autowired
     IUniversiteService universiteService;
 
-    // http://localhost:8089/Kaddem/universite/retrieve-all-universites
+    
     @GetMapping("/retrieve-all-universites")
     public List<Universite> getUniversites() {
         logger.info("Récupération de toutes les universités");
@@ -32,7 +32,7 @@ public class UniversiteRestController {
         return listUniversites;
     }
 
-    // http://localhost:8089/Kaddem/universite/retrieve-universite/8
+   
     @GetMapping("/retrieve-universite/{universite-id}")
     public Universite retrieveUniversite(@PathVariable("universite-id") Integer universiteId) {
         logger.info("Récupération de l'université avec ID : {}", universiteId);
@@ -43,7 +43,7 @@ public class UniversiteRestController {
         return universite;
     }
 
-    // http://localhost:8089/Kaddem/universite/add-universite
+
     @PostMapping("/add-universite")
     public Universite addUniversite(@RequestBody Universite u) {
         logger.info("Ajout d'une nouvelle université : {}", u);
@@ -52,7 +52,7 @@ public class UniversiteRestController {
         return universite;
     }
 
-    // http://localhost:8089/Kaddem/universite/remove-universite/1
+    
     @DeleteMapping("/remove-universite/{universite-id}")
     public void removeUniversite(@PathVariable("universite-id") Integer universiteId) {
         logger.info("Suppression de l'université avec ID : {}", universiteId);
@@ -60,7 +60,6 @@ public class UniversiteRestController {
         logger.debug("Université supprimée avec succès : {}", universiteId);
     }
 
-    // http://localhost:8089/Kaddem/universite/update-universite
     @PutMapping("/update-universite")
     public Universite updateUniversite(@RequestBody Universite u) {
         logger.info("Mise à jour de l'université : {}", u);
