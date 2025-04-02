@@ -60,7 +60,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PAT')]) {
                         sh '''
                             echo "$DOCKER_PAT" | docker login -u "$DOCKER_USER" --password-stdin
-                            docker push guesmimelek/kaddem:0.0.2
+                            docker push guesmimelek/kaddem:0.0.1
                         '''
                     }
                 }
