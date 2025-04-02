@@ -15,7 +15,7 @@ import java.util.Set;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/universite")
-@CrossOrigin(origins = "http://localhost:4200") // Allow requests from this origin
+@CrossOrigin(origins = "*") // For testing
 public class UniversiteRestController {
 
     private static final Logger logger = LogManager.getLogger(UniversiteRestController.class);
