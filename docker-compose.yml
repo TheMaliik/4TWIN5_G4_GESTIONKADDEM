@@ -35,7 +35,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus1
+    container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus-data:/prometheus
@@ -53,7 +53,7 @@ services:
 
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana1
+    container_name: grafana
     depends_on:
       - prometheus
     ports:
