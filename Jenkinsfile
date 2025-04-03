@@ -55,18 +55,24 @@ pipeline {
         stage("Deploy with Docker Compose") {
             steps {
                 script {
-                    echo '📊 Setting up monitoring with Prometheus and Grafana...'
-                    // Ensure prometheus.yml exists in the workspace
+                    echo '📊 Setting up application with existing monitoring infrastructure...'
                     sh '''
-                        docker compose down
-                        docker compose pull
-                        docker compose up -d
+                        # Only update app containers, preserving monitoring containers
+                        # Copy prometheus.yml to existing container if needed
+                        if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
+                            # Update the prometheus.yml file in the existing container
+                            docker cp prometheus.yml prometheus:/etc/prometheus/
+                            # Reload Prometheus configuration (without restarting container)
+                            curl -X POST http://localhost:9090/-/reload
+                            echo "✅ Updated Prometheus configuration"
+                        fi
+                        
+                        # Only bring up the app service, don't touch monitoring
+                        docker compose up -d mysql spring-boot-app
                     '''
                 }
             }
         }
     }
-
-     
-    }
+}
    
