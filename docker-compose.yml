@@ -33,7 +33,7 @@ services:
     tty: true
     stdin_open: true
 
-    prometheus:
+  prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     volumes:
@@ -67,8 +67,6 @@ services:
     networks:
       - events-network
     restart: always
-
-  
 
 volumes:
   mysql-data:
