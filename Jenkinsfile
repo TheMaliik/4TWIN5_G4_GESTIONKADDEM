@@ -67,35 +67,8 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    echo '📊 Setting up application with existing monitoring infrastructure...'
+                    echo '📊 Setting up application ...'
                     sh '''
-                        # Check if Prometheus container exists
-                        if [ "$(docker ps -q -f name=prometheus)" ]; then
-                            echo "Updating Prometheus configuration..."
-                            
-                            # Copy prometheus.yml to existing container if needed
-                            if [ -f "prometheus.yml" ]; then
-                                docker cp prometheus.yml prometheus:/etc/prometheus/
-                                
-                                # Check if Prometheus was started with --web.enable-lifecycle
-                                LIFECYCLE_ENABLED=$(docker inspect --format='{{.Args}}' prometheus | grep -- "--web.enable-lifecycle" && echo true || echo false)
-                                
-                                if [ "$LIFECYCLE_ENABLED" = "true" ]; then
-                                    # Reload Prometheus configuration (without restarting container)
-                                    curl -X POST http://localhost:9090/-/reload
-                                    echo "✅ Updated Prometheus configuration and reloaded"
-                                else
-                                    echo "⚠️ Warning: Prometheus lifecycle API not enabled. Restarting container."
-                                    # Restart Prometheus to apply new configuration
-                                    docker restart prometheus
-                                    echo "✅ Restarted Prometheus to apply new configuration"
-                                fi
-                            fi
-                        else
-                            echo "Prometheus container not found. Starting new containers..."
-                        fi
-                        
-                        # Only bring up the app service, don't touch monitoring
                         docker compose down    
                         docker compose pull
                         docker compose up -d
