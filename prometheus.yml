@@ -3,6 +3,6 @@ global:
 
 scrape_configs:
   - job_name: 'spring-boot-app'
-    metrics_path: ''
+    metrics_path: '/kaddem/actuator/prometheus'  # Update to include the context path
     static_configs:
-      - targets: ['192.168.33.10:8089']  # Use the service name and port
+      - targets: ['192.168.33.10:8089']  # Keep the target as is
