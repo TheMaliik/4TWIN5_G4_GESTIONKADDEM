@@ -5,4 +5,4 @@ scrape_configs:
   - job_name: 'spring-boot-app'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['spring-boot-app:8089']  # Use the service name and port
+      - targets: ['192.168.33.10:8089']  # Use the service name and port
