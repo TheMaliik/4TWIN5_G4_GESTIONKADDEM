@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight{%-5level} %logger{36} - %msg%n</Property>
+        <Property name="APP_LOG_ROOT">./logs</Property>
+    </Properties>
+    
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="false"/>
+        </Console>
+        
+        <RollingFile name="FileAppender" 
+                     fileName="${APP_LOG_ROOT}/departement-module.log"
+                     filePattern="${APP_LOG_ROOT}/archived/departement-module-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB" />
+                <TimeBasedTriggeringPolicy interval="1" />
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+    
+    <Loggers>
+        <Logger name="tn.esprit.spring.kaddem.controllers" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FileAppender" />
+        </Logger>
+        
+        <Logger name="tn.esprit.spring.kaddem.services" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FileAppender" />
+        </Logger>
+        
+        <Logger name="tn.esprit.spring.kaddem.repositories" level="info" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FileAppender" />
+        </Logger>
+        
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="FileAppender" />
+        </Root>
+    </Loggers>
+</Configuration> 
