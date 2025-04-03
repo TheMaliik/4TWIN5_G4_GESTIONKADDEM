@@ -1,8 +1,1 @@
-global:
-  scrape_interval: 15s
 
-scrape_configs:
-  - job_name: 'spring-boot-app'
-    metrics_path: '/kaddem/actuator/prometheus'  # Update to include the context path
-    static_configs:
-      - targets: ['192.168.33.10:8089']  # Keep the target as is
