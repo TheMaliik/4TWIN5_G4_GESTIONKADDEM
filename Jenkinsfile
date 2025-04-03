@@ -62,9 +62,20 @@ pipeline {
                         if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
                             # Update the prometheus.yml file in the existing container
                             docker cp prometheus.yml prometheus:/etc/prometheus/
-                            # Reload Prometheus configuration (without restarting container)
-                            curl -X POST http://localhost:9090/-/reload
-                            echo "✅ Updated Prometheus configuration"
+                            
+                            # Check if Prometheus was started with --web.enable-lifecycle
+                            LIFECYCLE_ENABLED=$(docker inspect --format='{{range .Args}}{{if eq . "--web.enable-lifecycle"}}true{{end}}{{end}}' prometheus)
+                            
+                            if [ "$LIFECYCLE_ENABLED" = "true" ]; then
+                                # Reload Prometheus configuration (without restarting container)
+                                curl -X POST http://localhost:9090/-/reload
+                                echo "✅ Updated Prometheus configuration and reloaded"
+                            else
+                                echo "⚠️ Warning: Prometheus lifecycle API not enabled. Need to restart container."
+                                # Restart Prometheus to apply new configuration
+                                docker restart prometheus
+                                echo "✅ Restarted Prometheus to apply new configuration"
+                            fi
                         fi
                         
                         # Only bring up the app service, don't touch monitoring
