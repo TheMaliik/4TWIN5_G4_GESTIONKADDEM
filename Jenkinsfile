@@ -76,9 +76,8 @@ pipeline {
                 }
             }
         }
-    }
 
-    stage('Send Email Notification') {
+        stage('Send Email Notification') {
             steps {
                 script {
                     echo '📧 Preparing build report email...'
@@ -148,8 +147,8 @@ pipeline {
                 }
             }
         }
-    }
-    
+    } // End of stages
+
     // Configure post-build actions for notification in case of failure
     post {
         failure {
