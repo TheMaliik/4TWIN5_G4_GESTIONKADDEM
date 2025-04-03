@@ -30,10 +30,8 @@ pipeline {
                 script {
                     def startTime = System.currentTimeMillis()
                     try {
-                        sh '''
                         echo "Déploiement vers Nexus (tests ignorés)..."
-                        mvn deploy -DskipTests
-                        '''
+                        sh 'mvn deploy -DskipTests'
                     } finally {
                         def endTime = System.currentTimeMillis()
                         def duration = (endTime - startTime) / 1000
@@ -65,30 +63,36 @@ pipeline {
                 }
             }
         }
-        stage("Deploy with Docker Compose") {
+
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
                     echo '📊 Setting up application with existing monitoring infrastructure...'
                     sh '''
-                        # Only update app containers, preserving monitoring containers
-                        # Copy prometheus.yml to existing container if needed
-                        if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
-                            # Update the prometheus.yml file in the existing container
-                            docker cp prometheus.yml prometheus:/etc/prometheus/
+                        # Check if Prometheus container exists
+                        if [ "$(docker ps -q -f name=prometheus)" ]; then
+                            echo "Updating Prometheus configuration..."
                             
-                            # Check if Prometheus was started with --web.enable-lifecycle
-                            LIFECYCLE_ENABLED=$(docker inspect --format='{{range .Args}}{{if eq . "--web.enable-lifecycle"}}true{{end}}{{end}}' prometheus)
-                            
-                            if [ "$LIFECYCLE_ENABLED" = "true" ]; then
-                                # Reload Prometheus configuration (without restarting container)
-                                curl -X POST http://localhost:9090/-/reload
-                                echo "✅ Updated Prometheus configuration and reloaded"
-                            else
-                                echo "⚠️ Warning: Prometheus lifecycle API not enabled. Need to restart container."
-                                # Restart Prometheus to apply new configuration
-                                docker restart prometheus
-                                echo "✅ Restarted Prometheus to apply new configuration"
+                            # Copy prometheus.yml to existing container if needed
+                            if [ -f "prometheus.yml" ]; then
+                                docker cp prometheus.yml prometheus:/etc/prometheus/
+                                
+                                # Check if Prometheus was started with --web.enable-lifecycle
+                                LIFECYCLE_ENABLED=$(docker inspect --format='{{.Args}}' prometheus | grep -- "--web.enable-lifecycle" && echo true || echo false)
+                                
+                                if [ "$LIFECYCLE_ENABLED" = "true" ]; then
+                                    # Reload Prometheus configuration (without restarting container)
+                                    curl -X POST http://localhost:9090/-/reload
+                                    echo "✅ Updated Prometheus configuration and reloaded"
+                                else
+                                    echo "⚠️ Warning: Prometheus lifecycle API not enabled. Restarting container."
+                                    # Restart Prometheus to apply new configuration
+                                    docker restart prometheus
+                                    echo "✅ Restarted Prometheus to apply new configuration"
+                                fi
                             fi
+                        else
+                            echo "Prometheus container not found. Starting new containers..."
                         fi
                         
                         # Only bring up the app service, don't touch monitoring
@@ -99,8 +103,6 @@ pipeline {
                 }
             }
         }
-
-        
     }
 
     post {
