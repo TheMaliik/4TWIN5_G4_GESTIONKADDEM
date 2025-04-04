@@ -6,7 +6,7 @@ services:
     container_name: mysqldb   # Set the container name here
     restart: unless-stopped
     environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD='yes'
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
       - MYSQL_DATABASE=kaddem
     ports:
       - "3306:3306"
