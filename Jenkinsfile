@@ -196,7 +196,7 @@ pipeline {
                             )
                         }
                     }
-                }
+
             } // End of stages
 
             // Configure post-build actions for notification in case of failure
