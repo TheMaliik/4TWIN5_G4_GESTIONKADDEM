@@ -17,6 +17,7 @@ services:
     depends_on:
       - mysqldb
     image: ahmedbenhmida/kaddem-app:1.0.0
+    container_name: kaddem-app
     restart: on-failure
     ports:
       - "8089:8089"
