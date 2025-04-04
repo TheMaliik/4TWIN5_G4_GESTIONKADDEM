@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD='yes'
-        - MYSQL_DATABASE=kaddem
+      - MYSQL_DATABASE=kaddem
     ports:
       - "3306:3306"
     volumes:
@@ -20,13 +20,17 @@ services:
     ports:
       - "8089:8089"
     environment:
-
-      "spring.datasource.url": "jdbc:mysql://mysqldb:3306/kaddem?createDatabaseIfNotExist=true",
-      "spring.datasource.username": "root",
-      "spring.datasource.password": "",
-      "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
-      "spring.jpa.hibernate.ddl-auto": "update"
-
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/kaddemdb?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD:
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_APPLICATION_JSON: '{
+        "spring.datasource.url": "jdbc:mysql://mysqldb:3306/kaddem?createDatabaseIfNotExist=true",
+        "spring.datasource.username": "root",
+        "spring.datasource.password": "",
+        "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQL5InnoDBDialect",
+        "spring.jpa.hibernate.ddl-auto": "update"
+      }'
     stdin_open: true
     tty: true
 
