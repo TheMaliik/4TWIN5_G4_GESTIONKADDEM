@@ -29,6 +29,8 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ""
       SPRING_JPA_SHOW_SQL: "true"
+    networks:
+      - events-network
     stdin_open: true
     tty: true
 
