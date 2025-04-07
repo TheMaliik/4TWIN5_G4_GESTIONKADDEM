@@ -3,7 +3,7 @@ version: "3.8"
 services:
   mysqldb:
     image: mysql:latest
-    container_name: mysqldbs
+    container_name: mysqldb
     restart: always
     environment:
       MYSQL_DATABASE: kaddemdb
@@ -18,14 +18,14 @@ services:
 
   kaddem-app:
     depends_on:
-      - mysqldbs
+      - mysqldb
     image: ahmedbenhmida/kaddem-app:1.0.0
     container_name: kaddem-app
     restart: on-failure
     ports:
       - "8089:8089"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldbs:3306/kaddemdb?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/kaddemdb?createDatabaseIfNotExist=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ""
       SPRING_JPA_SHOW_SQL: "true"
