@@ -15,7 +15,7 @@ services:
     networks:
       - events-network
 
-        
+
   kaddem-app:
     depends_on:
       - mysqldb
