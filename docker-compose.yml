@@ -11,7 +11,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - db:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
     networks:
       - events-network
 
@@ -35,6 +35,6 @@ services:
     tty: true
 
 volumes:
-  db:
+  mysql_data:
 networks:
   events-network:
