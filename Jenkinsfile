@@ -14,6 +14,12 @@ pipeline {
                 // Run unit tests
                 sh 'mvn test'
             }
+            post {
+                always {
+                    // Publish JUnit test results
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
         }
 
         stage('SonarQube Analysis') {
