@@ -10,8 +10,7 @@ scrape_configs:
       - targets: ['192.168.33.10:8089']
         labels:
           instance: 'spring-boot'
-          application: '192.168.33.10:8089'
-          #application: 'kaddem'
+          application: 'kaddem'
 
   - job_name: 'prometheus'
     scrape_interval: 5s
