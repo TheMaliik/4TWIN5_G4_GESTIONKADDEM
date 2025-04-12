@@ -7,11 +7,11 @@ scrape_configs:
     metrics_path: '/kaddem/actuator/prometheus'
     scrape_interval: 5s
     static_configs:
-      - targets: ['192.168.33.10:8089']
+      - targets: ['kaddem-app:8089']
         labels:
           instance: 'spring-boot'
-          application: '192.168.33.10:8089'
-          #application: 'kaddem'
+          #application: '192.168.33.10:8089'
+          application: 'kaddem'
 
   - job_name: 'prometheus'
     scrape_interval: 5s
