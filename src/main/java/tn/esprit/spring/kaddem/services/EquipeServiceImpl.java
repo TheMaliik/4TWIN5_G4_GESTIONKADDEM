@@ -1,0 +1,340 @@
+package tn.esprit.spring.kaddem.services;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import tn.esprit.spring.kaddem.entities.Contrat;
+import tn.esprit.spring.kaddem.entities.Equipe;
+import tn.esprit.spring.kaddem.entities.Etudiant;
+import tn.esprit.spring.kaddem.entities.Niveau;
+import tn.esprit.spring.kaddem.repositories.EquipeRepository;
+import tn.esprit.spring.kaddem.repositories.EtudiantRepository;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Service implementation for managing Equipe.
+ */
+@Slf4j
+@Service
+public class EquipeServiceImpl implements IEquipeService {
+
+    @Autowired
+    private EquipeRepository equipeRepository;
+
+    @Autowired
+    private EtudiantRepository etudiantRepository;
+
+    @Override
+    public List<Equipe> retrieveAllEquipes() {
+        log.info("Début de récupération de toutes les équipes");
+        List<Equipe> equipes = (List<Equipe>) equipeRepository.findAll();
+        log.debug("Nombre d'équipes récupérées : {}", equipes.size());
+        log.info("Fin de récupération de toutes les équipes");
+        return equipes;
+    }
+
+    @Override
+    public Equipe addEquipe(Equipe e) {
+        log.info("Début d'ajout d'une nouvelle équipe");
+        log.debug("Ajout de l'équipe avec nom : {}", e.getNomEquipe());
+        Equipe savedEquipe = equipeRepository.save(e);
+        log.info("Équipe ajoutée avec succès, ID : {}", savedEquipe.getIdEquipe());
+        return equipeRepository.save(e);
+    }
+
+    @Override
+    public void deleteEquipe(Integer idEquipe) {
+        log.info("Début de suppression de l'équipe avec ID : {}", idEquipe);
+        try {
+            Equipe e = retrieveEquipe(idEquipe);
+            equipeRepository.delete(e);
+            log.info("Équipe supprimée avec succès");
+        } catch (Exception e) {
+            log.error("Erreur lors de la suppression de l'équipe : {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public Equipe retrieveEquipe(Integer equipeId) {
+        log.info("Recherche de l'équipe avec ID : {}", equipeId);
+        Optional<Equipe> equipe = equipeRepository.findById(equipeId);
+        if (equipe.isPresent()) {
+            log.info("Équipe trouvée");
+            return equipe.get();
+        }
+        log.error("Équipe avec ID {} non trouvée", equipeId);
+        return null;
+    }
+
+    @Override
+    public Equipe updateEquipe(Equipe e) {
+        log.info("Début de mise à jour de l'équipe avec ID : {}", e.getIdEquipe());
+        Equipe updatedEquipe = equipeRepository.save(e);
+        log.info("Équipe mise à jour avec succès");
+        return equipeRepository.save(e);
+    }
+
+    @Override
+    public boolean peutAccepterNouveauxMembres(Integer idEquipe) {
+        log.debug("Vérification de la capacité pour l'équipe {}", idEquipe);
+        Equipe equipe = equipeRepository.findById(idEquipe).orElse(null);
+        if (equipe == null) {
+            log.error("Équipe {} non trouvée", idEquipe);
+            throw new IllegalArgumentException("Équipe non trouvée");
+        }
+
+        // Si nombreMaxEtudiants n'est pas défini, on utilise une valeur par défaut de 5
+        int maxEtudiants = equipe.getNombreMaxEtudiants() != null ? equipe.getNombreMaxEtudiants() : 5;
+
+        boolean peutAccepter = equipe.getEtudiants() == null || equipe.getEtudiants().size() < maxEtudiants;
+        log.info("L'équipe {} {} accepter de nouveaux membres", idEquipe, peutAccepter ? "peut" : "ne peut pas");
+        return peutAccepter;
+    }
+
+    @Override
+    public Map<Niveau, Double> calculerScoreMoyenParNiveau() {
+        log.info("Début de calcul du score moyen par niveau");
+        List<Equipe> equipes = retrieveAllEquipes();
+
+        Map<Niveau, Double> result = equipes.stream()
+            .filter(e -> e.getScore() != null && e.getNiveau() != null)
+            .collect(Collectors.groupingBy(
+                Equipe::getNiveau,
+                Collectors.averagingDouble(Equipe::getScore)
+            ));
+        log.info("Calcul du score moyen par niveau terminé");
+        return result;
+    }
+
+    @Override
+    public boolean transfererEtudiant(Integer idEtudiant, Integer idEquipeSource, Integer idEquipeDestination) {
+        log.info("Début de transfert de l'étudiant {} de l'équipe {} vers l'équipe {}", idEtudiant, idEquipeSource, idEquipeDestination);
+
+        // Vérifier si l'équipe destination peut accepter de nouveaux membres
+        Optional<Equipe> equipeDestOpt = equipeRepository.findById(idEquipeDestination);
+        if (equipeDestOpt.isEmpty()) {
+            log.error("Équipe destination non trouvée");
+            return false;
+        }
+        Equipe equipeDestination = equipeDestOpt.get();
+        if (equipeDestination.getEtudiants() != null && 
+            equipeDestination.getEtudiants().size() >= equipeDestination.getNombreMaxEtudiants()) {
+            log.error("L'équipe {} ne peut pas accepter de nouveaux membres", idEquipeDestination);
+            return false;
+        }
+
+        // Récupérer l'équipe source et l'étudiant
+        Optional<Equipe> equipeSourceOpt = equipeRepository.findById(idEquipeSource);
+        Optional<Etudiant> etudiantOpt = etudiantRepository.findById(idEtudiant);
+
+        if (equipeSourceOpt.isEmpty() || etudiantOpt.isEmpty()) {
+            log.error("Équipe source ou étudiant non trouvé");
+            return false;
+        }
+
+        Equipe equipeSource = equipeSourceOpt.get();
+        Etudiant etudiant = etudiantOpt.get();
+
+        // Vérifier si l'étudiant est bien dans l'équipe source
+        if (!equipeSource.getEtudiants().contains(etudiant)) {
+            log.error("L'étudiant {} n'est pas dans l'équipe {}", idEtudiant, idEquipeSource);
+            return false;
+        }
+
+        // Effectuer le transfert
+        equipeSource.getEtudiants().remove(etudiant);
+        equipeDestination.getEtudiants().add(etudiant);
+
+        // Sauvegarder les changements
+        equipeRepository.save(equipeSource);
+        equipeRepository.save(equipeDestination);
+
+        log.info("Transfert de l'étudiant {} effectué avec succès", idEtudiant);
+        return true;
+    }
+
+    @Override
+    public void mettreAJourScoreEquipe(Integer idEquipe, Integer nouveauScore) {
+        log.info("Début de mise à jour du score de l'équipe {}", idEquipe);
+
+        // Récupérer l'équipe d'abord pour vérifier son existence
+        Optional<Equipe> equipeOpt = equipeRepository.findById(idEquipe);
+        if (equipeOpt.isEmpty()) {
+            log.error("Équipe non trouvée");
+            throw new IllegalArgumentException("Équipe non trouvée");
+        }
+
+        // Vérifier si le score est valide
+        if (nouveauScore < 0) {
+            log.error("Le score ne peut pas être négatif");
+            throw new IllegalArgumentException("Le score ne peut pas être négatif");
+        }
+
+        // Mettre à jour le score
+        Equipe equipe = equipeOpt.get();
+        equipe.setScore(nouveauScore);
+        equipeRepository.save(equipe);
+        
+        log.info("Score de l'équipe {} mis à jour avec succès", idEquipe);
+    }
+
+    @Override
+    public Double evaluerPerformanceEquipe(Integer idEquipe) {
+        log.info("Début d'évaluation de la performance pour l'équipe {}", idEquipe);
+        Equipe equipe = retrieveEquipe(idEquipe);
+        if (equipe == null) {
+            log.error("Équipe non trouvée");
+            throw new IllegalArgumentException("Équipe non trouvée");
+        }
+
+        // Calculer le score de performance basé sur plusieurs facteurs
+        double scoreBase = equipe.getScore() != null ? equipe.getScore() : 0;
+        double bonusTechnologies = equipe.getTechnologiesUtilisees().size() * 2.0;
+        double bonusNiveau = getNiveauMultiplier(equipe.getNiveau());
+        double bonusProjet = equipe.getProjetEnCours() != null && equipe.getProjetEnCours() ? 10.0 : 0.0;
+
+        // Calculer l'index de performance final
+        double performanceIndex = (scoreBase + bonusTechnologies + bonusProjet) * bonusNiveau;
+
+        // Mettre à jour l'index de performance de l'équipe
+        equipe.setPerformanceIndex(performanceIndex);
+        equipeRepository.save(equipe);
+
+        log.info("Performance évaluée avec succès : {}", performanceIndex);
+        return performanceIndex;
+    }
+
+    private double getNiveauMultiplier(Niveau niveau) {
+        if (niveau == null) return 1.0;
+        switch (niveau) {
+            case EXPERT:
+                return 1.5;
+            case SENIOR:
+                return 1.3;
+            case JUNIOR:
+                return 1.1;
+            default:
+                return 1.0;
+        }
+    }
+
+    @Override
+    public Set<String> recommanderTechnologies(Integer idEquipe) {
+        log.info("Début de recommandation de technologies pour l'équipe {}", idEquipe);
+        Equipe equipe = retrieveEquipe(idEquipe);
+        if (equipe == null) {
+            log.error("Équipe non trouvée");
+            throw new IllegalArgumentException("Équipe non trouvée");
+        }
+
+        Set<String> technologies = new HashSet<>();
+
+        // Recommandations basées sur le niveau
+        switch (equipe.getNiveau()) {
+            case JUNIOR:
+                technologies.addAll(Arrays.asList("Java", "Spring Boot", "Angular", "Git"));
+                break;
+            case SENIOR:
+                technologies.addAll(Arrays.asList("Microservices", "Docker", "Kubernetes", "CI/CD"));
+                break;
+            case EXPERT:
+                technologies.addAll(Arrays.asList("Cloud Native", "DevOps", "Machine Learning", "Big Data"));
+                break;
+        }
+
+        // Retirer les technologies déjà maîtrisées
+        technologies.removeAll(equipe.getTechnologiesUtilisees());
+
+        log.info("Recommandations générées : {}", technologies);
+        return technologies;
+    }
+
+    @Override
+    public Date planifierEvaluation(Integer idEquipe) {
+        log.info("Début de planification d'évaluation pour l'équipe {}", idEquipe);
+        Equipe equipe = retrieveEquipe(idEquipe);
+        if (equipe == null) {
+            log.error("Équipe non trouvée");
+            throw new IllegalArgumentException("Équipe non trouvée");
+        }
+
+        Calendar cal = Calendar.getInstance();
+
+        // Si c'est la première évaluation
+        if (equipe.getLastEvaluation() == null) {
+            cal.add(Calendar.MONTH, 1); // Première évaluation dans 1 mois
+            log.info("Première évaluation planifiée pour dans 1 mois");
+        } else {
+            // Calculer le délai basé sur la performance
+            Double performance = equipe.getPerformanceIndex();
+            if (performance == null) {
+                performance = evaluerPerformanceEquipe(idEquipe);
+            }
+
+            if (performance >= 90) {
+                cal.add(Calendar.MONTH, 6); // Très bonne performance -> évaluation dans 6 mois
+                log.info("Performance élevée - Prochaine évaluation dans 6 mois");
+            } else if (performance >= 70) {
+                cal.add(Calendar.MONTH, 3); // Bonne performance -> évaluation dans 3 mois
+                log.info("Performance moyenne - Prochaine évaluation dans 3 mois");
+            } else {
+                cal.add(Calendar.MONTH, 1); // Performance à améliorer -> évaluation dans 1 mois
+                log.info("Performance basse - Prochaine évaluation dans 1 mois");
+            }
+        }
+
+        Date prochaineEvaluation = cal.getTime();
+
+        // Mettre à jour la date de dernière évaluation
+        equipe.setLastEvaluation(new Date());
+        equipeRepository.save(equipe);
+
+        log.debug("Prochaine évaluation planifiée pour : {}", prochaineEvaluation);
+        return prochaineEvaluation;
+    }
+
+    public void evoluerEquipes() {
+        log.info("Début d'évolution des équipes");
+        List<Equipe> equipes = (List<Equipe>) equipeRepository.findAll();
+        for (Equipe equipe : equipes) {
+            if ((equipe.getNiveau().equals(Niveau.JUNIOR)) || (equipe.getNiveau().equals(Niveau.SENIOR))) {
+                List<Etudiant> etudiants = (List<Etudiant>) equipe.getEtudiants();
+                Integer nbEtudiantsAvecContratsActifs = 0;
+                for (Etudiant etudiant : etudiants) {
+                    Set<Contrat> contrats = etudiant.getContrats();
+                    //Set<Contrat> contratsActifs=null;
+                    for (Contrat contrat : contrats) {
+                        Date dateSysteme = new Date();
+                        long difference_In_Time = dateSysteme.getTime() - contrat.getDateFinContrat().getTime();
+                        long difference_In_Years = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
+                        if ((contrat.getArchive() == false) && (difference_In_Years > 1)) {
+                            //	contratsActifs.add(contrat);
+                            nbEtudiantsAvecContratsActifs++;
+                            break;
+                        }
+                        if (nbEtudiantsAvecContratsActifs >= 3) break;
+                    }
+                }
+                if (nbEtudiantsAvecContratsActifs >= 3) {
+                    if (equipe.getNiveau().equals(Niveau.JUNIOR)) {
+                        equipe.setNiveau(Niveau.SENIOR);
+                        equipeRepository.save(equipe);
+                        break;
+                    }
+                    if (equipe.getNiveau().equals(Niveau.SENIOR)) {
+                        equipe.setNiveau(Niveau.EXPERT);
+                        equipeRepository.save(equipe);
+                        break;
+                    }
+                }
+            }
+
+        }
+        log.info("Évolution des équipes terminée");
+    }
+}
