@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    
+    // Define environment variables for email recipients
+    environment {
+        EMAIL_RECIPIENTS = 'rima.benabdallah@gmail.com'// Replace with your email address
+    }
+    
     stages {
         stage('Build') {
             steps {
@@ -92,5 +98,28 @@ stage('Deploy to Nexus') {
               }
      
     }
-   
+    
+    // Add email notification for build results
+    post {
+        always {
+            echo 'Sending email notification...'
+            emailext (
+                subject: "Build ${currentBuild.result}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """<p>Build Status: ${currentBuild.result}</p>
+                        <p>Build Number: ${env.BUILD_NUMBER}</p>
+                        <p>Build URL: ${env.BUILD_URL}</p>
+                        <p>Project: ${env.JOB_NAME}</p>""",
+                to: "${env.EMAIL_RECIPIENTS}",
+                attachLog: true,
+                compressLog: true,
+                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']]
+            )
+        }
+        success {
+            echo 'Build successful! 🎉'
+        }
+        failure {
+            echo 'Build failed! 🚨'
+        }
+    }
 }
