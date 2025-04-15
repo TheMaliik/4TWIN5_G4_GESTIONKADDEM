@@ -131,11 +131,7 @@ pipeline {
                 }
             }
         }
-<<<<<<< HEAD
 
-=======
-        
->>>>>>> b10f2891bfa3be4a67c847824bbbbd6e9a1e22fa
         stage('Deploy with Docker Compose') {
             steps {
                 script {
