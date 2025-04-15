@@ -118,6 +118,19 @@ pipeline {
             }
         }
 
+        stage('Clean Existing Containers') {
+            steps {
+                script {
+                    sh '''
+                    docker rm -f prometheus || true
+                    docker rm -f mysqldb || true
+                    docker rm -f grafana || true
+                    docker rm -f kaddem-app || true
+                    '''
+                }
+            }
+        }
+
         stage('Deploy with Docker Compose') {
             steps {
                 script {
@@ -126,7 +139,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Send Email Notification') {
                     steps {
                         script {
@@ -198,10 +211,10 @@ pipeline {
                     }
 
             }
-
+*/
 
     }// End of stages
-
+/*
     // Configure post-build actions for notification in case of failure
     post {
         failure {
@@ -213,4 +226,5 @@ pipeline {
             )
         }
     }
+*/
 }

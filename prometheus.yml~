@@ -10,7 +10,6 @@ scrape_configs:
       - targets: ['kaddem-app:8089']
         labels:
           instance: 'spring-boot'
-          #application: '192.168.33.10:8089'
           application: 'kaddem'
 
   - job_name: 'prometheus'

@@ -118,6 +118,19 @@ pipeline {
             }
         }
 
+        stage('Clean Existing Containers') {
+            steps {
+                script {
+                    sh '''
+                    docker rm -f prometheus || true
+                    docker rm -f mysqldb || true
+                    docker rm -f grafana || true
+                    docker rm -f kaddem-app || true
+                    '''
+                }
+            }
+        }
+
         stage('Deploy with Docker Compose') {
             steps {
                 script {
