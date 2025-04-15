@@ -20,9 +20,9 @@ spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 ### ACTUATOR / PROMETHEUS ###
-management.endpoints.web.exposure.include=*
+#management.endpoints.web.exposure.include=*
 
-#management.endpoints.web.exposure.include=health,info,prometheus,metrics,loggers
+management.endpoints.web.exposure.include=health,info,prometheus,metrics,loggers
 management.endpoint.health.show-details=always
 management.endpoint.metrics.enabled=true
 management.endpoint.prometheus.enabled=true

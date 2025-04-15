@@ -36,7 +36,8 @@ pipeline {
         stage('Build JAR') {
             steps {
                 // Build the Maven project and package the JAR, skipping tests
-                sh 'mvn clean package -DskipTests'
+                //sh 'mvn clean package -DskipTests'
+                sh 'mvn clean install'
             }
         }
 
@@ -130,7 +131,11 @@ pipeline {
                 }
             }
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> b10f2891bfa3be4a67c847824bbbbd6e9a1e22fa
         stage('Deploy with Docker Compose') {
             steps {
                 script {
