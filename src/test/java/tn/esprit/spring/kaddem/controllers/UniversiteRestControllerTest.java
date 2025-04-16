@@ -13,9 +13,10 @@ import tn.esprit.spring.kaddem.services.IUniversiteService;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -36,6 +37,11 @@ class UniversiteRestControllerTest {
     @Test
     void testGetUniversites() {
         List<Universite> universites = new ArrayList<>();
+        Universite uni1 = new Universite(1, "University A");
+        Universite uni2 = new Universite(2, "University B");
+        universites.add(uni1);
+        universites.add(uni2);
+
         when(universiteService.retrieveAllUniversites()).thenReturn(universites);
 
         List<Universite> result = universiteRestController.getUniversites();
@@ -45,7 +51,7 @@ class UniversiteRestControllerTest {
 
     @Test
     void testRetrieveUniversite() {
-        Universite universite = new Universite();
+        Universite universite = new Universite(1, "University A");
         when(universiteService.retrieveUniversite(anyInt())).thenReturn(universite);
 
         Universite result = universiteRestController.retrieveUniversite(1);
@@ -54,13 +60,30 @@ class UniversiteRestControllerTest {
     }
 
     @Test
+    void testRetrieveUniversite_NotFound() {
+        when(universiteService.retrieveUniversite(anyInt())).thenReturn(null);
+
+        Universite result = universiteRestController.retrieveUniversite(999);
+        assertNull(result);
+        verify(universiteService, times(1)).retrieveUniversite(999);
+    }
+
+    @Test
     void testAddUniversite() {
-        Universite universite = new Universite();
+        Universite universite = new Universite(1, "University A");
         when(universiteService.addUniversite(any(Universite.class))).thenReturn(universite);
 
         Universite result = universiteRestController.addUniversite(universite);
         assertEquals(universite, result);
         verify(universiteService, times(1)).addUniversite(universite);
+    }
+
+    @Test
+    void testAddUniversite_InvalidInput() {
+        Universite universite = new Universite();
+        assertThrows(IllegalArgumentException.class, () -> {
+            universiteRestController.addUniversite(universite);
+        });
     }
 
     @Test
@@ -73,11 +96,21 @@ class UniversiteRestControllerTest {
 
     @Test
     void testUpdateUniversite() {
-        Universite universite = new Universite();
+        Universite universite = new Universite(1, "University A");
         when(universiteService.updateUniversite(any(Universite.class))).thenReturn(universite);
 
         Universite result = universiteRestController.updateUniversite(universite);
         assertEquals(universite, result);
+        verify(universiteService, times(1)).updateUniversite(universite);
+    }
+
+    @Test
+    void testUpdateUniversite_NotFound() {
+        Universite universite = new Universite(999, "Nonexistent University");
+        when(universiteService.updateUniversite(any(Universite.class))).thenReturn(null);
+
+        Universite result = universiteRestController.updateUniversite(universite);
+        assertNull(result);
         verify(universiteService, times(1)).updateUniversite(universite);
     }
 
@@ -92,10 +125,22 @@ class UniversiteRestControllerTest {
     @Test
     void testListerDepartementsUniversite() {
         Set<Departement> departements = new HashSet<>();
+        Departement dep1 = new Departement(1, "Department A");
+        departements.add(dep1);
+
         when(universiteService.retrieveDepartementsByUniversite(anyInt())).thenReturn(departements);
 
         Set<Departement> result = universiteRestController.listerDepartementsUniversite(1);
         assertEquals(departements, result);
         verify(universiteService, times(1)).retrieveDepartementsByUniversite(1);
+    }
+
+    @Test
+    void testListerDepartementsUniversite_NotFound() {
+        when(universiteService.retrieveDepartementsByUniversite(anyInt())).thenReturn(new HashSet<>());
+
+        Set<Departement> result = universiteRestController.listerDepartementsUniversite(999);
+        assertTrue(result.isEmpty());
+        verify(universiteService, times(1)).retrieveDepartementsByUniversite(999);
     }
 }
