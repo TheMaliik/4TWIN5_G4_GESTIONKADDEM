@@ -161,18 +161,6 @@ pipeline {
             }
         }
 */
-        stage('Simple Email') {
-          steps {
-            script {
-              emailext (
-                to: 'benhmida.ahmed1@esprit.tn',
-                subject: "✅ Jenkins Simple Email Test",
-                body: "This is a basic email test from Jenkins.",
-                mimeType: 'text/plain'
-              )
-            }
-          }
-        }
 
         stage('Send Email Notification') {
                     steps {
