@@ -9,7 +9,7 @@ services:
       MYSQL_DATABASE: kaddemdb
       MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
       MYSQL_ROOT_HOST: '%'
-      MYSQL_USER: root
+     # MYSQL_USER: root
       MYSQL_PASSWORD: ''
     ports:
       - "3306:3306"
