@@ -1,0 +1,19 @@
+name: Jenkins CI Trigger
+
+on:
+  push:
+    branches:
+      - Ghaithoueslati-4Twin5-G4  # Branche à surveiller (ajuste si nécessaire)
+
+jobs:
+  trigger-jenkins:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Trigger Jenkins job
+        run: |
+          curl -X POST "https://44ce-196-203-207-178.ngrok-free.app/job/GhaithDevops/build" \
+          --user "admin:881f17f2-547c-4bad-beb1-7e8397717cf1"
