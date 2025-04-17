@@ -37,7 +37,7 @@ pipeline {
             steps {
                 // Build the Maven project and package the JAR, skipping tests
                 //sh 'mvn clean package -DskipTests'
-                sh 'mvn clean install'
+                sh 'mvn clean package'
             }
         }
 
