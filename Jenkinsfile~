@@ -197,8 +197,18 @@ pipeline {
                             fi
                         fi
 
-                        # Only bring up the app service, don't touch monitoring
-                        docker compose up -d mysql kaddem-app
+                        if [ "$(docker ps -a -q -f name=mysqldb)" ]; then
+                            echo "🔁 Container mysqldb already exists, restarting..."
+                            docker start mysqldb || true
+                        else
+                            docker compose up -d mysqldb
+                        fi
+                        if [ "$(docker ps -a -q -f name=kaddem-app)" ]; then
+                                            echo "🔁 Container kaddem-app already exists, restarting..."
+                                            docker start kaddem-app || true
+                                        else
+                                            docker compose up -d kaddem-app
+                                        fi
                     '''
                 }
             }
