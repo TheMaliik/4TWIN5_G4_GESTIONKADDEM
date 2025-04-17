@@ -161,7 +161,7 @@ pipeline {
                         if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
                             echo "📦 Stopping Prometheus container to update config..."
                             docker stop prometheus
-                            docker cp prometheus.yml prometheus:/etc/prometheus/prometheus.yml
+                            docker cp prometheus.yml prometheus:/etc/prometheus/
                             docker start prometheus
                             echo "✅ Prometheus restarted with new configuration"
                         fi
