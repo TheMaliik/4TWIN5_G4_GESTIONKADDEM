@@ -28,6 +28,6 @@ management.endpoint.metrics.enabled=true
 management.endpoint.prometheus.enabled=true
 management.metrics.export.prometheus.enabled=true
 
-# CORS setup if using Spring Security (optional)
+
 spring.web.cors.allowed-origins=http://localhost:4200
 
