@@ -151,7 +151,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Deploy with Docker Compose') {
             steps {
                 script {
@@ -165,53 +165,20 @@ pipeline {
                             docker start prometheus
                             echo "✅ Prometheus restarted with new configuration"
                         fi
-                    '''
-                    sh 'docker-compose up -d'
-                }
-            }
-        }
-*/
-        stage("Deploy with Docker Compose") {
-            steps {
-                script {
-                    echo '📊 Setting up application with existing monitoring infrastructure...'
-                    sh '''
-                        # Only update app containers, preserving monitoring containers
-                        # Copy prometheus.yml to existing container if needed
-                        if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
-                            # Safely copy the prometheus.yml file to a temporary path
-                                docker cp prometheus.yml prometheus:/etc/prometheus/prometheus_temp.yml
 
-                            # Replace the original file (handle resource busy safely)
-                            docker exec prometheus sh -c 'mv -f /etc/prometheus/prometheus_temp.yml /etc/prometheus/prometheus.yml'
-
-                            # Check if Prometheus was started with --web.enable-lifecycle
-                            LIFECYCLE_ENABLED=$(docker inspect --format='{{range .Args}}{{if eq . "--web.enable-lifecycle"}}true{{end}}{{end}}' prometheus)
-
-                            if [ "$LIFECYCLE_ENABLED" = "true" ]; then
-                                # Reload Prometheus configuration (without restarting container)
-                                curl -X POST http://localhost:9090/-/reload
-                                echo "✅ Updated Prometheus configuration and reloaded"
-                            else
-                                echo "⚠️ Warning: Prometheus lifecycle API not enabled. Need to restart container."
-                                # Restart Prometheus to apply new configuration
-                                docker restart prometheus
-                                echo "✅ Restarted Prometheus to apply new configuration"
-                            fi
-                        fi
-
-                        if [ "$(docker ps -a -q -f name=mysqldb)" ]; then
-                            echo "🔁 Container mysqldb already exists, restarting..."
-                            docker start mysqldb || true
-                        else
-                            docker compose up -d mysqldb
-                        fi
-                        if [ "$(docker ps -a -q -f name=kaddem-app)" ]; then
-                            echo "🔁 Container kaddem-app already exists, restarting..."
-                            docker start kaddem-app || true
-                        else
-                            docker compose up -d kaddem-app
-                        fi
+                    //sh 'docker-compose up -d'
+                    if [ "$(docker ps -a -q -f name=mysqldb)" ]; then
+                         echo "🔁 Container mysqldb already exists, restarting..."
+                        docker start mysqldb || true
+                    else
+                        docker compose up -d mysqldb
+                    fi
+                    if [ "$(docker ps -a -q -f name=kaddem-app)" ]; then
+                        echo "🔁 Container kaddem-app already exists, restarting..."
+                        docker start kaddem-app || true
+                    else
+                         docker compose up -d kaddem-app
+                    fi
                     '''
                 }
             }
