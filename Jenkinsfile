@@ -239,6 +239,16 @@ pipeline {
 
     // Configure post-build actions for notification in case of failure
     post {
+
+        success {
+            emailext (
+                to: 'benhmida.ahmed1@esprit.tn',
+                subject: "Build Success - ${env.JOB_NAME}",
+                body: "Build #${env.BUILD_NUMBER} succeeded",
+                mimeType: 'text/plain'
+            )
+        }
+
         failure {
             emailext (
                 to: 'benhmida.ahmed1@esprit.tn',
