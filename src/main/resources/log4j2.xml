@@ -11,8 +11,8 @@
         </Console>
 
         <RollingFile name="FileAppender"
-                     fileName="${APP_LOG_ROOT}/departement-module.log"
-                     filePattern="${APP_LOG_ROOT}/archived/departement-module-%d{yyyy-MM-dd}-%i.log">
+                     fileName="${APP_LOG_ROOT}/etudiant-module.log"
+                     filePattern="${APP_LOG_ROOT}/archived/etudiant-module-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="${LOG_PATTERN}"/>
             <Policies>
                 <SizeBasedTriggeringPolicy size="10MB" />
