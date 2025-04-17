@@ -198,7 +198,7 @@ pipeline {
                         fi
 
                         # Only bring up the app service, don't touch monitoring
-                        docker compose up -d mysql kaddem-app
+                        docker compose up -d mysqldb kaddem-app
                     '''
                 }
             }
