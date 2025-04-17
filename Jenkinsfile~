@@ -204,11 +204,11 @@ pipeline {
                             docker compose up -d mysqldb
                         fi
                         if [ "$(docker ps -a -q -f name=kaddem-app)" ]; then
-                                            echo "🔁 Container kaddem-app already exists, restarting..."
-                                            docker start kaddem-app || true
-                                        else
-                                            docker compose up -d kaddem-app
-                                        fi
+                            echo "🔁 Container kaddem-app already exists, restarting..."
+                            docker start kaddem-app || true
+                        else
+                            docker compose up -d kaddem-app
+                        fi
                     '''
                 }
             }

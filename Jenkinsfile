@@ -179,8 +179,11 @@ pipeline {
                         # Only update app containers, preserving monitoring containers
                         # Copy prometheus.yml to existing container if needed
                         if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
-                            # Update the prometheus.yml file in the existing container
-                            docker cp prometheus.yml prometheus:/etc/prometheus/
+                            # Safely copy the prometheus.yml file to a temporary path
+                                docker cp prometheus.yml prometheus:/etc/prometheus/prometheus_temp.yml
+
+                            # Replace the original file (handle resource busy safely)
+                            docker exec prometheus sh -c 'mv -f /etc/prometheus/prometheus_temp.yml /etc/prometheus/prometheus.yml'
 
                             # Check if Prometheus was started with --web.enable-lifecycle
                             LIFECYCLE_ENABLED=$(docker inspect --format='{{range .Args}}{{if eq . "--web.enable-lifecycle"}}true{{end}}{{end}}' prometheus)
