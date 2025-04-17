@@ -5,7 +5,7 @@ FROM openjdk:17-jdk-slim
 WORKDIR /app
 
 # Copy only the necessary files to avoid unnecessary layers
-COPY target/kaddem-0.0.1.jar app.jar
+COPY target/kaddem-0.0.2.jar app.jar
 #COPY target/*.jar app.jar
 
 # Expose the application port
