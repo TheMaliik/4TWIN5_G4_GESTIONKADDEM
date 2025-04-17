@@ -119,7 +119,7 @@ pipeline {
             }
         }
 
-
+/*
         stage('Deploy with Docker Compose') {
             steps {
                 script {
@@ -151,6 +151,40 @@ pipeline {
                 }
             }
         }
+*/
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    sh 'docker-compose down || true'  // Ensure cleanup before running
+                    echo '📊 Setting up application with existing monitoring infrastructure...'
+                    sh '''
+                        # Only update app containers, preserving monitoring containers
+                        # Copy prometheus.yml to existing container if needed
+                        if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
+                            # Copy to temporary file first to avoid "device or resource busy" error
+                            docker cp prometheus.yml prometheus:/etc/prometheus/prometheus_temp.yml
+                            docker exec prometheus sh -c 'mv /etc/prometheus/prometheus_temp.yml /etc/prometheus/prometheus.yml'
+
+                            # Check if Prometheus was started with --web.enable-lifecycle
+                            LIFECYCLE_ENABLED=$(docker inspect --format='{{range .Args}}{{if eq . "--web.enable-lifecycle"}}true{{end}}{{end}}' prometheus)
+
+                            if [ "$LIFECYCLE_ENABLED" = "true" ]; then
+                                # Reload Prometheus configuration (without restarting container)
+                                curl -X POST http://localhost:9090/-/reload
+                                echo "✅ Updated Prometheus configuration and reloaded"
+                            else
+                                echo "⚠️ Warning: Prometheus lifecycle API not enabled. Need to restart container."
+                                # Restart Prometheus to apply new configuration
+                                docker restart prometheus
+                                echo "✅ Restarted Prometheus to apply new configuration"
+                            fi
+                        fi
+                    '''
+                    sh 'docker-compose up -d'
+                }
+            }
+        }
+
 /*
         stage('Send Email Notification') {
                     steps {
