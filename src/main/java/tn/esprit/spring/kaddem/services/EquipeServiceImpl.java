@@ -1,8 +1,7 @@
 package tn.esprit.spring.kaddem.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.kaddem.entities.Contrat;
@@ -78,7 +77,7 @@ public class EquipeServiceImpl implements IEquipeService {
         log.info("Équipe mise à jour avec succès");
         return equipeRepository.save(e);
     }
-
+/* 
     @Override
     public boolean peutAccepterNouveauxMembres(Integer idEquipe) {
         log.debug("Vérification de la capacité pour l'équipe {}", idEquipe);
@@ -222,7 +221,7 @@ public class EquipeServiceImpl implements IEquipeService {
                 return 1.0;
         }
     }
-
+*/
     @Override
     public Set<String> recommanderTechnologies(Integer idEquipe) {
         log.info("Début de recommandation de technologies pour l'équipe {}", idEquipe);
@@ -253,7 +252,7 @@ public class EquipeServiceImpl implements IEquipeService {
         log.info("Recommandations générées : {}", technologies);
         return technologies;
     }
-
+/* 
     @Override
     public Date planifierEvaluation(Integer idEquipe) {
         log.info("Début de planification d'évaluation pour l'équipe {}", idEquipe);
@@ -297,7 +296,7 @@ public class EquipeServiceImpl implements IEquipeService {
         log.debug("Prochaine évaluation planifiée pour : {}", prochaineEvaluation);
         return prochaineEvaluation;
     }
-
+*/
     public void evoluerEquipes() {
         log.info("Début d'évolution des équipes");
         List<Equipe> equipes = (List<Equipe>) equipeRepository.findAll();

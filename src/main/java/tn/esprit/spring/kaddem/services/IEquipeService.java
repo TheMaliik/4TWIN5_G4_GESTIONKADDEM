@@ -16,13 +16,13 @@ public interface IEquipeService {
     void deleteEquipe(Integer idEquipe);
     
     // Méthodes existantes avancées
-    boolean peutAccepterNouveauxMembres(Integer idEquipe);
-    Map<Niveau, Double> calculerScoreMoyenParNiveau();
-    boolean transfererEtudiant(Integer idEtudiant, Integer idEquipeSource, Integer idEquipeDestination);
-    void mettreAJourScoreEquipe(Integer idEquipe, Integer nouveauScore);
+  //  boolean peutAccepterNouveauxMembres(Integer idEquipe);
+  //  Map<Niveau, Double> calculerScoreMoyenParNiveau();
+  //  boolean transfererEtudiant(Integer idEtudiant, Integer idEquipeSource, Integer idEquipeDestination);
+  //  void mettreAJourScoreEquipe(Integer idEquipe, Integer nouveauScore);
     public void evoluerEquipes();
     // Nouvelles méthodes avancées
-    Double evaluerPerformanceEquipe(Integer idEquipe);
+ //   Double evaluerPerformanceEquipe(Integer idEquipe);
     Set<String> recommanderTechnologies(Integer idEquipe);
-    Date planifierEvaluation(Integer idEquipe);
+ //   Date planifierEvaluation(Integer idEquipe);
 }
