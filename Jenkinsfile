@@ -62,73 +62,64 @@ pipeline {
                 }
             }
         }
-            stage('Deploy with Docker Compose') {
+        
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
                     echo '🚀 Deploying with Docker Compose...'
                     echo '📊 Setting up application with existing monitoring infrastructure...'
-                     // First, handle existing containers
-            sh '''
-                # Function to safely stop and remove a container
-                safe_remove_container() {
-                    local container_name=$1
-                    if [ "$(docker ps -q -f name=$container_name)" ]; then
-                        echo "Stopping and removing existing $container_name container..."
-                        docker stop $container_name || true
-                        docker rm $container_name || true
-                    fi
-                }
+                    sh '''
+                        # Function to safely stop and remove a container
+                        safe_remove_container() {
+                            local container_name=$1
+                            if [ "$(docker ps -q -f name=$container_name)" ]; then
+                                echo "Stopping and removing existing $container_name container..."
+                                docker stop $container_name || true
+                                docker rm $container_name || true
+                            fi
+                        }
 
-                # Handle Prometheus configuration first
-                if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
-                    # Backup existing Prometheus configuration
-                    docker cp prometheus:/etc/prometheus/prometheus.yml prometheus.yml.backup || true
-                    
-                    # Stop and remove existing Prometheus container
-                    safe_remove_container "prometheus"
-                fi
+                        # Handle Prometheus configuration first
+                        if [ -f "prometheus.yml" ] && [ "$(docker ps -q -f name=prometheus)" ]; then
+                            # Backup existing Prometheus configuration
+                            docker cp prometheus:/etc/prometheus/prometheus.yml prometheus.yml.backup || true
+                            
+                            # Stop and remove existing Prometheus container
+                            safe_remove_container "prometheus"
+                        fi
 
-                # Stop and remove existing Grafana container
-                safe_remove_container "grafana"
+                        # Stop and remove existing Grafana container
+                        safe_remove_container "grafana"
 
-                # Stop and remove existing app containers
-                safe_remove_container "ghaithdevops-app-timesheet-1"
-                safe_remove_container "ghaithdevops-mysqldb-1"
+                        # Stop and remove existing app containers
+                        safe_remove_container "ghaithdevops-app-timesheet-1"
+                        safe_remove_container "ghaithdevops-mysqldb-1"
 
-                # Bring up all services with --force-recreate
-                docker compose up -d --force-recreate
+                        # Bring up all services with --force-recreate
+                        docker compose up -d --force-recreate
 
-                # Restore Prometheus configuration if backup exists
-                if [ -f "prometheus.yml.backup" ]; then
-                    echo "Restoring Prometheus configuration..."
-                    docker cp prometheus.yml prometheus:/etc/prometheus/
-                    
-                    # Check if Prometheus was started with --web.enable-lifecycle
-                    LIFECYCLE_ENABLED=$(docker inspect --format='{{range .Args}}{{if eq . "--web.enable-lifecycle"}}true{{end}}{{end}}' prometheus)
-                    
-                    if [ "$LIFECYCLE_ENABLED" = "true" ]; then
-                        # Reload Prometheus configuration
-                        curl -X POST http://localhost:9090/-/reload
-                        echo "✅ Updated Prometheus configuration and reloaded"
-                    else
-                        echo "⚠️ Warning: Prometheus lifecycle API not enabled. Restarting container..."
-                        docker restart prometheus
-                        echo "✅ Restarted Prometheus to apply new configuration"
-                    fi
-                    
-                    # Clean up backup
-                    rm prometheus.yml.backup
-                fi
+                        # Restore Prometheus configuration if backup exists
+                        if [ -f "prometheus.yml.backup" ]; then
+                            echo "Restoring Prometheus configuration..."
+                            # Stop Prometheus before copying the file
+                            docker stop prometheus || true
+                            
+                            # Copy the configuration file
+                            docker cp prometheus.yml.backup prometheus:/etc/prometheus/prometheus.yml
+                            
+                            # Start Prometheus again
+                            docker start prometheus
+                            echo "✅ Updated Prometheus configuration and restarted container"
+                            
+                            # Clean up backup
+                            rm prometheus.yml.backup
+                        fi
 
-                # Verify all containers are running
-                echo "Verifying container status..."
-                docker ps | grep -E "prometheus|grafana|mysqldb|app-timesheet"
-            '''
+                        # Verify all containers are running
+                        echo "Verifying container status..."
+                        docker ps | grep -E "prometheus|grafana|mysqldb|app-timesheet"
+                    '''
                 }
             }
-        }  
-       
-
+        }
     }
-   
-}
