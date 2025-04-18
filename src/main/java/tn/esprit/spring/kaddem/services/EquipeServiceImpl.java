@@ -42,7 +42,7 @@ public class EquipeServiceImpl implements IEquipeService {
         log.debug("Ajout de l'équipe avec nom : {}", e.getNomEquipe());
         Equipe savedEquipe = equipeRepository.save(e);
         log.info("Équipe ajoutée avec succès, ID : {}", savedEquipe.getIdEquipe());
-        return equipeRepository.save(e);
+        return savedEquipe;
     }
 
     @Override
@@ -75,9 +75,9 @@ public class EquipeServiceImpl implements IEquipeService {
         log.info("Début de mise à jour de l'équipe avec ID : {}", e.getIdEquipe());
         Equipe updatedEquipe = equipeRepository.save(e);
         log.info("Équipe mise à jour avec succès");
-        return equipeRepository.save(e);
+        return updatedEquipe;
     }
-/* 
+
     @Override
     public boolean peutAccepterNouveauxMembres(Integer idEquipe) {
         log.debug("Vérification de la capacité pour l'équipe {}", idEquipe);
@@ -193,7 +193,7 @@ public class EquipeServiceImpl implements IEquipeService {
 
         // Calculer le score de performance basé sur plusieurs facteurs
         double scoreBase = equipe.getScore() != null ? equipe.getScore() : 0;
-        double bonusTechnologies = equipe.getTechnologiesUtilisees().size() * 2.0;
+        double bonusTechnologies = equipe.getTechnologiesUtilisees() != null ? equipe.getTechnologiesUtilisees().size() * 2.0 : 0;
         double bonusNiveau = getNiveauMultiplier(equipe.getNiveau());
         double bonusProjet = equipe.getProjetEnCours() != null && equipe.getProjetEnCours() ? 10.0 : 0.0;
 
@@ -221,7 +221,7 @@ public class EquipeServiceImpl implements IEquipeService {
                 return 1.0;
         }
     }
-*/
+
     @Override
     public Set<String> recommanderTechnologies(Integer idEquipe) {
         log.info("Début de recommandation de technologies pour l'équipe {}", idEquipe);
@@ -234,6 +234,10 @@ public class EquipeServiceImpl implements IEquipeService {
         Set<String> technologies = new HashSet<>();
 
         // Recommandations basées sur le niveau
+        if (equipe.getNiveau() == null) {
+            return technologies;
+        }
+        
         switch (equipe.getNiveau()) {
             case JUNIOR:
                 technologies.addAll(Arrays.asList("Java", "Spring Boot", "Angular", "Git"));
@@ -247,12 +251,14 @@ public class EquipeServiceImpl implements IEquipeService {
         }
 
         // Retirer les technologies déjà maîtrisées
-        technologies.removeAll(equipe.getTechnologiesUtilisees());
+        if (equipe.getTechnologiesUtilisees() != null) {
+            technologies.removeAll(equipe.getTechnologiesUtilisees());
+        }
 
         log.info("Recommandations générées : {}", technologies);
         return technologies;
     }
-/* 
+
     @Override
     public Date planifierEvaluation(Integer idEquipe) {
         log.info("Début de planification d'évaluation pour l'équipe {}", idEquipe);
@@ -296,23 +302,23 @@ public class EquipeServiceImpl implements IEquipeService {
         log.debug("Prochaine évaluation planifiée pour : {}", prochaineEvaluation);
         return prochaineEvaluation;
     }
-*/
+    
     public void evoluerEquipes() {
         log.info("Début d'évolution des équipes");
         List<Equipe> equipes = (List<Equipe>) equipeRepository.findAll();
         for (Equipe equipe : equipes) {
             if ((equipe.getNiveau().equals(Niveau.JUNIOR)) || (equipe.getNiveau().equals(Niveau.SENIOR))) {
-                List<Etudiant> etudiants = (List<Etudiant>) equipe.getEtudiants();
+                Collection<Etudiant> etudiants = equipe.getEtudiants();
                 Integer nbEtudiantsAvecContratsActifs = 0;
                 for (Etudiant etudiant : etudiants) {
                     Set<Contrat> contrats = etudiant.getContrats();
-                    //Set<Contrat> contratsActifs=null;
+                    if (contrats == null) continue;
+                    
                     for (Contrat contrat : contrats) {
                         Date dateSysteme = new Date();
                         long difference_In_Time = dateSysteme.getTime() - contrat.getDateFinContrat().getTime();
                         long difference_In_Years = (difference_In_Time / (1000l * 60 * 60 * 24 * 365));
                         if ((contrat.getArchive() == false) && (difference_In_Years > 1)) {
-                            //	contratsActifs.add(contrat);
                             nbEtudiantsAvecContratsActifs++;
                             break;
                         }

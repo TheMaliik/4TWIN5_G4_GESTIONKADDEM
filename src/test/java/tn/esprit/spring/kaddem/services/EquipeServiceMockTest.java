@@ -5,7 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import tn.esprit.spring.kaddem.entities.Contrat;
 import tn.esprit.spring.kaddem.entities.Equipe;
 import tn.esprit.spring.kaddem.entities.Etudiant;
 import tn.esprit.spring.kaddem.entities.Niveau;
@@ -16,9 +20,11 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class EquipeServiceMockTest {
 
     @Mock
@@ -68,7 +74,7 @@ public class EquipeServiceMockTest {
         etudiant.setNomE("Doe");
         etudiant.setPrenomE("John");
     }
-/* 
+
     @Test
     void testPeutAccepterNouveauxMembres() {
         // Configuration du mock
@@ -203,7 +209,7 @@ public class EquipeServiceMockTest {
         verify(equipeRepository).findById(999);
         verify(equipeRepository, never()).save(any(Equipe.class));
     }
-*/
+
     @Test
     void testRecommanderTechnologies() {
         when(equipeRepository.findById(1)).thenReturn(Optional.of(equipe1));
@@ -239,7 +245,7 @@ public class EquipeServiceMockTest {
         
         verify(equipeRepository, times(3)).findById(1);
     }
-/* 
+
     @Test
     void testPlanifierEvaluation() {
         when(equipeRepository.findById(1)).thenReturn(Optional.of(equipe1));
@@ -306,5 +312,192 @@ public class EquipeServiceMockTest {
         verify(equipeRepository, times(3)).findById(1);
         verify(equipeRepository, times(3)).save(any(Equipe.class));
     }
-*/
+
+    /**
+     * Tests for addEquipe method - Updated for single save
+     */
+    @Test
+    void testAddEquipe() {
+        when(equipeRepository.save(any(Equipe.class))).thenReturn(equipe1);
+        
+        Equipe result = equipeService.addEquipe(equipe1);
+        
+        assertNotNull(result);
+        assertEquals(equipe1.getNomEquipe(), result.getNomEquipe());
+        
+        // After our fix, save is only called once
+        verify(equipeRepository, times(1)).save(any(Equipe.class));
+    }
+
+    /**
+     * Tests for updateEquipe method - Updated for single save
+     */
+    @Test
+    void testUpdateEquipe() {
+        when(equipeRepository.save(any(Equipe.class))).thenReturn(equipe1);
+        
+        Equipe result = equipeService.updateEquipe(equipe1);
+        
+        assertNotNull(result);
+        assertEquals(equipe1.getNomEquipe(), result.getNomEquipe());
+        
+        // After our fix, save is only called once
+        verify(equipeRepository, times(1)).save(any(Equipe.class));
+    }
+
+    /**
+     * Additional tests for transfererEtudiant with edge cases
+     */
+    @Test
+    void testTransfererEtudiantEquipeSourceNonExistante() {
+        // Create a new equipeService instance with new mocks to isolate this test
+        EquipeRepository mockRepo = mock(EquipeRepository.class);
+        EtudiantRepository mockEtuRepo = mock(EtudiantRepository.class);
+        
+        EquipeServiceImpl isolatedService = new EquipeServiceImpl();
+        // Use reflection to inject mocks
+        try {
+            java.lang.reflect.Field repoField = EquipeServiceImpl.class.getDeclaredField("equipeRepository");
+            repoField.setAccessible(true);
+            repoField.set(isolatedService, mockRepo);
+            
+            java.lang.reflect.Field etuRepoField = EquipeServiceImpl.class.getDeclaredField("etudiantRepository");
+            etuRepoField.setAccessible(true);
+            etuRepoField.set(isolatedService, mockEtuRepo);
+        } catch (Exception e) {
+            fail("Failed to inject mocks: " + e.getMessage());
+        }
+        
+        // Mock behavior
+        when(mockRepo.findById(2)).thenReturn(Optional.of(equipe2));
+        when(mockRepo.findById(1)).thenReturn(Optional.empty());
+        
+        // Execute the method under test
+        boolean result = isolatedService.transfererEtudiant(1, 1, 2);
+        
+        // Verify the results
+        assertFalse(result);
+    }
+
+    @Test
+    void testTransfererEtudiantEquipeDestNonExistante() {
+        // Create a new equipeService instance with new mocks to isolate this test
+        EquipeRepository mockRepo = mock(EquipeRepository.class);
+        EtudiantRepository mockEtuRepo = mock(EtudiantRepository.class);
+        
+        EquipeServiceImpl isolatedService = new EquipeServiceImpl();
+        // Use reflection to inject mocks
+        try {
+            java.lang.reflect.Field repoField = EquipeServiceImpl.class.getDeclaredField("equipeRepository");
+            repoField.setAccessible(true);
+            repoField.set(isolatedService, mockRepo);
+            
+            java.lang.reflect.Field etuRepoField = EquipeServiceImpl.class.getDeclaredField("etudiantRepository");
+            etuRepoField.setAccessible(true);
+            etuRepoField.set(isolatedService, mockEtuRepo);
+        } catch (Exception e) {
+            fail("Failed to inject mocks: " + e.getMessage());
+        }
+        
+        // Create a fresh copy of equipe1 with students
+        Equipe sourceEquipe = new Equipe();
+        sourceEquipe.setIdEquipe(1);
+        sourceEquipe.setNomEquipe("Source Team");
+        sourceEquipe.setEtudiants(new HashSet<>(Arrays.asList(etudiant)));
+        
+        // Mock behavior
+        when(mockRepo.findById(2)).thenReturn(Optional.empty());
+        when(mockRepo.findById(1)).thenReturn(Optional.of(sourceEquipe));
+        
+        // Execute the method under test
+        boolean result = isolatedService.transfererEtudiant(1, 1, 2);
+        
+        // Verify the results
+        assertFalse(result);
+    }
+
+    /**
+     * Tests for evaluerPerformanceEquipe with edge cases
+     */
+    @Test
+    void testEvaluerPerformanceEquipeNullValues() {
+        Equipe equipeNullValues = new Equipe();
+        equipeNullValues.setIdEquipe(1);
+        equipeNullValues.setScore(null);
+        equipeNullValues.setNiveau(null);
+        equipeNullValues.setProjetEnCours(null);
+        equipeNullValues.setTechnologiesUtilisees(null);
+        
+        when(equipeRepository.findById(1)).thenReturn(Optional.of(equipeNullValues));
+        when(equipeRepository.save(any(Equipe.class))).thenReturn(equipeNullValues);
+        
+        Double performance = equipeService.evaluerPerformanceEquipe(1);
+        
+        assertNotNull(performance);
+        assertEquals(0.0, performance); // Base score 0, no bonus for niveau/techno/project
+        verify(equipeRepository).findById(1);
+        verify(equipeRepository).save(equipeNullValues);
+    }
+
+    /**
+     * Tests for planifierEvaluation with null performance
+     */
+    @Test
+    void testPlanifierEvaluationNullPerformance() {
+        equipe1.setPerformanceIndex(null);
+        when(equipeRepository.findById(1)).thenReturn(Optional.of(equipe1));
+        when(equipeRepository.save(any(Equipe.class))).thenReturn(equipe1);
+        
+        // This is the proper way to stub a method on the spy
+        EquipeServiceImpl equipeServiceSpy = spy(equipeService);
+        doReturn(85.0).when(equipeServiceSpy).evaluerPerformanceEquipe(1);
+        
+        Date evaluation = equipeServiceSpy.planifierEvaluation(1);
+        
+        assertNotNull(evaluation);
+        Calendar expected = Calendar.getInstance();
+        expected.add(Calendar.MONTH, 3); // Performance 85.0 -> 3 months
+        Calendar actual = Calendar.getInstance();
+        actual.setTime(evaluation);
+        
+        assertEquals(expected.get(Calendar.MONTH), actual.get(Calendar.MONTH));
+        verify(equipeRepository).findById(1);
+        verify(equipeRepository).save(any(Equipe.class));
+    }
+
+    /**
+     * Tests for evoluerEquipes with edge cases
+     */
+    @Test
+    void testEvoluerEquipesWithNullContrats() {
+        Equipe equipeJunior = new Equipe();
+        equipeJunior.setIdEquipe(1);
+        equipeJunior.setNiveau(Niveau.JUNIOR);
+        
+        // Using HashSet instead of casting to List in evoluerEquipes method
+        Set<Etudiant> etudiantsJunior = new HashSet<>();
+        
+        // Student with null contrats list
+        Etudiant e1 = new Etudiant();
+        e1.setIdEtudiant(1);
+        e1.setContrats(null);
+        etudiantsJunior.add(e1);
+        
+        // Student with empty contrats list
+        Etudiant e2 = new Etudiant();
+        e2.setIdEtudiant(2);
+        e2.setContrats(new HashSet<>());
+        etudiantsJunior.add(e2);
+        
+        equipeJunior.setEtudiants(etudiantsJunior);
+        
+        when(equipeRepository.findAll()).thenReturn(Collections.singletonList(equipeJunior));
+        
+        equipeService.evoluerEquipes();
+        
+        // Should not evolve as no students have active contracts
+        assertEquals(Niveau.JUNIOR, equipeJunior.getNiveau());
+        verify(equipeRepository).findAll();
+        verify(equipeRepository, never()).save(any(Equipe.class));
+    }
 }
