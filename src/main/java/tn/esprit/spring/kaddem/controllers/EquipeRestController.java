@@ -8,6 +8,7 @@ import tn.esprit.spring.kaddem.entities.Equipe;
 import tn.esprit.spring.kaddem.services.IEquipeService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @AllArgsConstructor
@@ -51,6 +52,10 @@ public class EquipeRestController {
 	public void faireEvoluerEquipes() {
 		 equipeService.evoluerEquipes() ;
 	}
+	@GetMapping("/recommend-technologies/{equipe-id}")
+public Set<String> recommendTechnologies(@PathVariable("equipe-id") Integer equipeId) {
+    return equipeService.recommanderTechnologies(equipeId);
+}
 }
 
 
