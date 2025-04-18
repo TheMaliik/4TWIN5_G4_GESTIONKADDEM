@@ -88,6 +88,7 @@ pipeline {
                                 echo "✅ Restarted Prometheus to apply new configuration"
                             fi
                         fi
+                           '''
                     sh 'docker compose up -d'
                 }
             }
