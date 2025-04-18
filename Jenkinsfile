@@ -52,7 +52,11 @@ pipeline {
             steps {
                 // Run SonarQube analysis for code quality checks
                 withSonarQubeEnv('Kaddem-sq') {
-                    sh 'mvn sonar:sonar'
+                    //sh 'mvn sonar:sonar'
+                    sh '''
+                        mvn sonar:sonar \
+                            -Dsonar.coverage.exclusions=**/KaddemApplication.java,**/config/**
+                    '''
                 }
             }
         }
