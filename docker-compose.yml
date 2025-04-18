@@ -11,7 +11,7 @@ services:
     ports:
       - 3306:3306 
     volumes:
-      - mysql:/var/lib/mysql
+      - mysql-d:/var/lib/mysql  # Corrected volume name
 
   app-timesheet:
     depends_on:
@@ -30,6 +30,7 @@ services:
       }'
     stdin_open: true
     tty: true
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -66,7 +67,7 @@ services:
     restart: always
 
 volumes:
-  mysql-data:
+  mysql-d:  # Corrected volume name
   prometheus-data:
   grafana-data:
 
